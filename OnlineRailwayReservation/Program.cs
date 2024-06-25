@@ -5,6 +5,7 @@ using OnlineRailwayReservation.Models;
 using AutoMapper;
 using Microsoft.Extensions.DependencyInjection;
 using OnlineRailwayReservation.Profiles;
+using System.Text.Json.Serialization;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -19,9 +20,18 @@ builder.Services.AddDbContext<ApplicationDbContext>(item => item.UseSqlServer(co
 
 builder.Services.AddScoped<IStationRepository, StationRepository>();
 builder.Services.AddScoped<ITrainRepository, TrainRepository>();
+builder.Services.AddScoped<ITicketRepository, TicketRepository>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
 //builder.Services.AddAutoMapper(typeof(Program));
 builder.Services.AddAutoMapper(typeof(StationProfile));
 builder.Services.AddAutoMapper(typeof(TrainProfile));
+
+builder.Services.AddControllers().AddJsonOptions(options =>
+{
+    options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+    options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
+});
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

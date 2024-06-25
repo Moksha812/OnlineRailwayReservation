@@ -3,9 +3,7 @@
 namespace OnlineRailwayReservation.DTO
 {
     public class TrainDto
-    {
-        public int Train_Id { get; set; }
-       
+    {       
         public string Train_Name { get; set; }
        
         public string Train_Number { get; set; }

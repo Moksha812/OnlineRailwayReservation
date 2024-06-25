@@ -25,8 +25,8 @@ namespace OnlineRailwayReservation.Controllers
             try
             {
                 var trains = await _trainRepository.GetAllTrains();
-                var trainDTOs = _mapper.Map<IEnumerable<TrainDto>>(trains);
-                return Ok(trainDTOs);
+                //var trainDTOs = _mapper.Map<IEnumerable<TrainDto>>(trains);
+                return Ok(trains);
             }
             catch (Exception ex)
             {
@@ -44,8 +44,8 @@ namespace OnlineRailwayReservation.Controllers
                 {
                     return NotFound();
                 }
-                var trainDTO = _mapper.Map<TrainDto>(train);
-                return Ok(trainDTO);
+                //var trainDTO = _mapper.Map<TrainDto>(train);
+                return Ok(train);
             }
             catch (Exception ex)
             {
@@ -60,8 +60,7 @@ namespace OnlineRailwayReservation.Controllers
             {
                 var train = _mapper.Map<Train>(trainDTO);
                 train = await _trainRepository.AddTrain(train);
-                trainDTO.Train_Id = train.Train_Id;
-                return CreatedAtAction(nameof(GetTrainById), new { id = trainDTO.Train_Id }, trainDTO);
+                return CreatedAtAction(nameof(GetTrainById), new { id = train.Train_Id }, trainDTO);
             }
             catch (Exception ex)
             {
@@ -72,14 +71,14 @@ namespace OnlineRailwayReservation.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> PutTrain(int id, TrainDto trainDTO)
         {
-            if (id != trainDTO.Train_Id)
+            var existingTrain = await _trainRepository.GetTrainById(id);
+            if (existingTrain == null)
             {
-                return BadRequest();
+                return BadRequest($"No train by id: {id} exist");
             }
-            var train = _mapper.Map<Train>(trainDTO);
             try
             {
-                await _trainRepository.UpdateTrain(train);
+                await _trainRepository.UpdateTrain(id, trainDTO);
             }
             catch (Exception ex)
             {
@@ -104,6 +103,23 @@ namespace OnlineRailwayReservation.Controllers
             catch (Exception ex)
             {
                 throw new Exception(ex.Message);
+            }
+        }
+
+        [HttpPost("SearchTrains")]
+        public async Task<IActionResult> GetTrainsBySourceAndDestinationStations([FromBody] SearchStationDto searchStationDto)
+        {
+            if (searchStationDto == null || searchStationDto.SourceStation == null || searchStationDto.DestinationStation == null)
+                return BadRequest("Input entries incorrect");
+            try
+            {
+                var res = await _trainRepository.GetTrainsBySourceAndDestinationStations(searchStationDto.SourceStation, searchStationDto.DestinationStation);
+                if (res == null) return NotFound($"No trains found from {searchStationDto.SourceStation} to {searchStationDto.DestinationStation}");
+                return Ok(res);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message); 
             }
         }
     }

@@ -1,6 +1,7 @@
 ﻿using Microsoft.Identity.Client.Platforms.Features.DesktopOs.Kerberos;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace OnlineRailwayReservation.Models
 {
@@ -21,8 +22,10 @@ namespace OnlineRailwayReservation.Models
         [Required]
         public int Seat_No {  get; set; }
         [Required]
+        [JsonIgnore]
         public int PnrNumber {  get; set; }
         [ForeignKey("PnrNumber")]
+        [JsonIgnore]
         public Ticket Ticket {  get; set; }
     }
 }

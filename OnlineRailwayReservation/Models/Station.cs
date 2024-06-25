@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace OnlineRailwayReservation.Models
 {
@@ -15,7 +16,9 @@ namespace OnlineRailwayReservation.Models
         [Required]
         [MaxLength(100)]
         public string State {  get; set; }
+        [JsonIgnore]
         public ICollection<Train> SourceTrains { get; set; }
+        [JsonIgnore]
         public ICollection<Train> DestinationTrains { get; set; }
     }
 }
