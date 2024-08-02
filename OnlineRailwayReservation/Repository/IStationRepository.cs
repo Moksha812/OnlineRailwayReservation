@@ -6,7 +6,7 @@ namespace OnlineRailwayReservation.Repository
     {
         Task<IEnumerable<Station>> GetAllStationsAsync();
         Task<Station>GetStationByIdAsync(int id);
-        Task AddStationAsync(Station station);
+        Task<Boolean> AddStationAsync(Station station);
         Task UpdateStationAsync(Station station);
         Task DeleteStationAsync(int id);
     }

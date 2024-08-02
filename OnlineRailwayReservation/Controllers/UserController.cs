@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using OnlineRailwayReservation.DTO;
 using OnlineRailwayReservation.Models;
 using OnlineRailwayReservation.Repository;
@@ -18,9 +19,14 @@ namespace OnlineRailwayReservation.Controllers
             _userRepository = userRepository;
             _mapper = mapper;
         }
-
+        [HttpGet("Exists/{email}")]
+        public async Task<ActionResult<bool>> CheckUserExists(string email)
+        {
+            var exists = await _userRepository.CheckUserExists(email);
+            return Ok(exists);
+        }
         [HttpPost("Register")]
-        public async Task<ActionResult<TrainDto>> CreateUser(UserDto userDto)
+        public async Task<ActionResult> CreateUser(UserDto userDto)
         {
             try
             {
@@ -35,12 +41,13 @@ namespace OnlineRailwayReservation.Controllers
         }
 
         [HttpPost("Login")]
-        public async Task<ActionResult<TrainDto>> LoginUser(LoginDto loginDto)
+        public async Task<ActionResult> LoginUser(LoginDto loginDto)
         {
             try
             {
                 var result = await _userRepository.LoginUser(loginDto);
                 if (result == null) return BadRequest(new { Message = $"Incorrect email or password" });
+                
                 return Ok(result);
             }
             catch (Exception ex)

@@ -97,12 +97,13 @@ namespace OnlineRailwayReservation.Repository
             }
         }
 
-        public async Task<IEnumerable<Train>> GetTrainsBySourceAndDestinationStations(string sourceStation, string destinationStation)
+        public async Task<IEnumerable<Train>> GetTrainsBySourceAndDestinationStations(string sourceStation, string destinationStation, DateTime travelDate)
         {
             try
             {
+                
                 var trains = await context.Trains.Where(x => x.SourceStation.StationName.ToLower().Equals(sourceStation.ToLower()) 
-                                && x.DestinationStation.StationName.ToLower().Equals(destinationStation.ToLower())).ToListAsync();
+                                && x.DestinationStation.StationName.ToLower().Equals(destinationStation.ToLower()) && x.DepartureTime.Date == travelDate.Date).ToListAsync();
                 return trains.IsNullOrEmpty() ? null : trains;
             }
             catch (Exception ex)

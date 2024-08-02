@@ -1,8 +1,10 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using OnlineRailwayReservation.DTO;
 using OnlineRailwayReservation.Repository;
+using System.Security.Claims;
 
 namespace OnlineRailwayReservation.Controllers
 {
@@ -19,12 +21,15 @@ namespace OnlineRailwayReservation.Controllers
         }
 
         [HttpPost("BookTicket")]
+        [Authorize(Policy = "RequireUserRole")]
         public async Task<IActionResult> BookTicket(BookTicketDto bookTicketDto)
         {
             if (bookTicketDto.Passengers.Count() > 6) return BadRequest("Cannot Book tickets for more than 6 people at a time");
             try
             {
-                var result = await _ticketRepository.BookTicket(bookTicketDto);
+                var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+
+                var result = await _ticketRepository.BookTicket(bookTicketDto,userId);
                 if (result != null)
                 {
                     return Ok(result);
@@ -38,6 +43,7 @@ namespace OnlineRailwayReservation.Controllers
         }
 
         [HttpGet("GetTicketsByUserId/{userId}")]
+        [Authorize(Policy = "RequireUserRole")]
         public async Task<IActionResult> GetTicketsByUserId(int userId)
         {
             try
@@ -53,7 +59,25 @@ namespace OnlineRailwayReservation.Controllers
             }
         }
 
+        [HttpGet("GetTicketsByPNR/{pnr}")]
+        //[Authorize(Policy = "RequireUserRole")]
+        public async Task<IActionResult> GetTicketsByPNR(int pnr)
+        {
+            try
+            {
+                var result = await _ticketRepository.GetTicketsByPNR(pnr);
+                if (result!=null)
+                    return Ok(result);
+                return BadRequest(new { Message = $"Cannot find tickets for user with PNR: {pnr}" });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
         [HttpPut("CancelTicket/{pnrNumber}")]
+        [Authorize(Policy = "RequireUserRole")]
         public async Task<IActionResult> CancelTicket(int pnrNumber)
         {
             try

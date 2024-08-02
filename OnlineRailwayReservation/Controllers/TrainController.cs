@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using OnlineRailwayReservation.DTO;
@@ -52,7 +53,7 @@ namespace OnlineRailwayReservation.Controllers
                 throw new Exception(ex.Message);
             }
         }
-
+        [Authorize(Policy = "RequireAdminRole")]
         [HttpPost]
         public async Task<ActionResult<TrainDto>> AddTrain(TrainDto trainDTO)
         {
@@ -67,7 +68,7 @@ namespace OnlineRailwayReservation.Controllers
                 throw new Exception(ex.Message);
             }
         }
-
+        [Authorize(Policy = "RequireAdminRole")]
         [HttpPut("{id}")]
         public async Task<IActionResult> PutTrain(int id, TrainDto trainDTO)
         {
@@ -86,7 +87,7 @@ namespace OnlineRailwayReservation.Controllers
             }
             return NoContent();
         }
-
+        [Authorize(Policy = "RequireAdminRole")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteTrain(int id)
         {
@@ -111,9 +112,11 @@ namespace OnlineRailwayReservation.Controllers
         {
             if (searchStationDto == null || searchStationDto.SourceStation == null || searchStationDto.DestinationStation == null)
                 return BadRequest("Input entries incorrect");
+            if (searchStationDto.SourceStation == searchStationDto.DestinationStation)
+                return BadRequest("Source and destination station can not be same");
             try
             {
-                var res = await _trainRepository.GetTrainsBySourceAndDestinationStations(searchStationDto.SourceStation, searchStationDto.DestinationStation);
+                var res = await _trainRepository.GetTrainsBySourceAndDestinationStations(searchStationDto.SourceStation, searchStationDto.DestinationStation,searchStationDto.TravelDate);
                 if (res == null) return NotFound($"No trains found from {searchStationDto.SourceStation} to {searchStationDto.DestinationStation}");
                 return Ok(res);
             }

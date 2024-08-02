@@ -10,6 +10,6 @@ namespace OnlineRailwayReservation.Repository
         Task<Train> AddTrain(Train train);
         Task<Train> UpdateTrain(int id, TrainDto trainDTO);
         Task DeleteTrain(int trainId);
-        Task<IEnumerable<Train>> GetTrainsBySourceAndDestinationStations(string sourceStation, string destinationStation);
+        Task<IEnumerable<Train>> GetTrainsBySourceAndDestinationStations(string sourceStation, string destinationStation, DateTime travelDate);
     }
 }

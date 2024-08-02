@@ -11,12 +11,19 @@ namespace OnlineRailwayReservation.Repository
         {
             this.context = context;
         }
-        public async Task AddStationAsync(Station station)
+        public async Task<Boolean> AddStationAsync(Station station)
         {
             try
             {
-                await context.Stations.AddAsync(station);
-                await context.SaveChangesAsync();
+                var existStation = await context.Stations.FirstOrDefaultAsync(s=>s.StationName==station.StationName);
+                if (existStation == null)
+                {
+
+                    await context.Stations.AddAsync(station);
+                    await context.SaveChangesAsync();
+                    return true;
+                }
+                return false;
             }
             
             catch (Exception ex) {

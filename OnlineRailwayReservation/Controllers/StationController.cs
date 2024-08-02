@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using OnlineRailwayReservation.DTO;
@@ -51,14 +52,16 @@ namespace OnlineRailwayReservation.Controllers
                 return StatusCode(500, ex.Message);
             }
         }
+        [Authorize(Policy = "RequireAdminRole")]
         [HttpPost]
         public async Task<IActionResult> CreateStation(CreateStationDto stationDto)
         {
             try
             {
                 var station=_mapper.Map<Station>(stationDto);
-                await _stationRepository.AddStationAsync(station);
+                var res = await _stationRepository.AddStationAsync(station);
                 var stationDtos = _mapper.Map<StationDto>(station);
+                
                 //var stationDto = new StationDto
                 //{
                 //    StationId = station.StationId,
@@ -66,15 +69,21 @@ namespace OnlineRailwayReservation.Controllers
                 //    city = station.city,
                 //    State = station.State,
                 //};
-                return CreatedAtAction(nameof(GetStationById), new { id = station.StationId }, stationDtos);
+                var ret = new
+                {
+                    success=res,
+                    station=stationDtos??null
+                };
+                return CreatedAtAction(nameof(GetStationById), new { id = station.StationId }, ret);
             }
             catch (Exception ex)
             {
                 return StatusCode(500, ex.Message);
             }
         }
+        [Authorize(Policy = "RequireAdminRole")]
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateStation(int id,UpdateStationDto updatestation)
+        public async Task<IActionResult> UpdateStation(int id,[FromBody]UpdateStationDto updatestation)
         {
             try
             {
@@ -91,6 +100,7 @@ namespace OnlineRailwayReservation.Controllers
                 return StatusCode(500, ex.Message);
             }
         }
+        [Authorize(Policy = "RequireAdminRole")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteStation(int id)
         {
